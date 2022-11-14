@@ -1,20 +1,43 @@
-const productos = ["NIKE AIR FORCE", "ADIDAS FORUM", "FILA RENNO", "NEW BALANCE 574", "ADIDAS SUPERSTAR"];
-const precio = [25000, 40000, 28000, 32000, 35000]
-const formaDePago = ["Efectivo (10% de descuento)", "Debito", "3 cuotas sin interes", "6 cuotas (recargo 10%)", "12 cuotas (recargo 20%)"]
-let msjEncabezadoProd = "Seleccione producto:\n";
-let msjEncabezadoPago = "Seleccione medio de pago:\n";
-let msjEncabezadoCant = "Ingrese la cantidad: ";
-let msjDetallePago = "Detalle de facturación: \n\n";
-let prodSeleccionado = 0;
-let FormaDePagoSeleccionado = 0;
-let cantidadProd = 0;
-let descuento = 0;
-let cuotas = 0;
-let precioFinal = 0;
-let isIngresoValido = false;
+// Clases
+class Producto {
 
+    constructor(marca, modelo, talle, cantidad, codigo) {
+        this.marca = marca;
+        this.modelo = modelo;
+        this.talle = talle;
+        this.cantidad = cantidad;
+        this.codigo = codigo;
+    }
+};
 
-const msjPantalla = function (msj, list) {
+class Zapatilla extends Producto {
+
+    constructor(marca, modelo, talle, cantidad, codigo, comColores, ajuste) {
+        super(marca, modelo, talle, cantidad, codigo);
+        this.comColores = comColores;
+        this.ajuste = ajuste;
+    }
+
+    get getMarca() {
+        return this.marca;
+    }
+
+    get getModelo() {
+        return this.modelo;
+    }
+};
+
+class Indumentaria extends Producto {
+
+    constructor(marca, modelo, talle, cantidad, codigo, color, tipo) {
+        super(marca, modelo, talle, cantidad, codigo);
+        this.color = color;
+        this.tipo = tipo;
+    }
+};
+
+// Funciones
+const mostrarMenu = function (msj, list) {
     let j = 0;
 
     for (let i = 0; i < list.length; i++) {
@@ -26,13 +49,13 @@ const msjPantalla = function (msj, list) {
     msj = msj + j + " - " + "Salir";
 
     return msj;
-}
+};
 
 function validarOpcion(mensaje, lista) {
     let seleccionado;
 
     while (true) {
-        seleccionado = parseInt(prompt(msjPantalla(mensaje, lista)));
+        seleccionado = parseInt(prompt(mostrarMenu(mensaje, lista)));
 
         if (!isNaN(seleccionado) && seleccionado != null && seleccionado != "") {
             break;
@@ -44,182 +67,182 @@ function validarOpcion(mensaje, lista) {
 
     }
     return seleccionado;
-}
+};
 
-function cantidadProducto(mensaje) {
-    let cantidad;
-
-    while (true) {
-        cantidad = parseInt(prompt(mensaje));
-
-        if (!isNaN(cantidad) && cantidad != null && cantidad != "") {
-            break;
+function listarProductos(lista) {
+    let msj = "";
+    /*
+        const tipo = (categ) => {
+            if(categ == "Z") {
+                return "zapatillas";
+            }
+            else if(categ == "I") {
+                return "indumentaria";
+            }
+        };
+    */
+    lista.forEach((producto) => {
+        if (producto.codigo[0] == "Z") {
+            msj = msj + "Producto: " + producto.marca + " " + producto.modelo + ", ";
+            msj = msj + "Talle: " + producto.talle + ", ";
+            msj = msj + "Colores: " + producto.comColores + ", ";
+            msj = msj + "Tipo de ajuste: " + producto.ajuste + ", ";
+            msj = msj + "Codigo: " + producto.codigo + "\n";
+            msj = msj + "---------------------------------------------------------------------" + "\n";
         }
-        else {
-            alert("Por favor ingrese una cantidad valida");
-            continue;
+        if (producto.codigo[0] == "I") {
+            msj = msj + "Producto: " + producto.marca + " " + producto.modelo + ", ";
+            msj = msj + "Tipo: " + producto.tipo + ", ";
+            msj = msj + "Talle: " + producto.talle + ", ";
+            msj = msj + "Color: " + producto.color + ", ";
+            msj = msj + "Codigo: " + producto.codigo + "\n";
+            msj = msj + "---------------------------------------------------------------------" + "\n";
         }
+    });
+
+    return msj;
+};
+
+function cargarProducto(codigo, lista) {
+    let msjPantalla = "";
+
+    //Busco el producto en la lista de productos
+    const prodAgregado = lista.find((prod) => prod.codigo === codigo);
+
+    //Si el producto fue encontrado, lo cargo en el carrito
+    if (prodAgregado != undefined) {
+        carrito.push(prodAgregado);
+        msjPantalla = msjPantalla + "Producto agregado correctamente! \n";
     }
-    return cantidad;
-}
-
-function calcularPrecioFinal(precio, cant, descuento, cuotas) {
-    let precioFinal = precio * cant;
-    let precioDescuento = 0;
-    let recargo = 0;
-
-    if (descuento > 0) {
-        precioDescuento = ((precioFinal * descuento) / 100);
-        precioFinal = precioFinal - precioDescuento;
-    }
-
-    if (cuotas == 3) {
-        precioFinal = precioFinal / cuotas;
-    }
-
-    if (cuotas == 6) {
-        recargo = ((precioFinal * 10) / 100);
-        precioFinal = precioFinal + recargo;
-        precioFinal = precioFinal / cuotas;
+    else {
+        msjPantalla = msjPantalla + "Codigo no encontrado! \n";
     }
 
-    if (cuotas == 12) {
-        recargo = ((precioFinal * 20) / 100);
-        precioFinal = precioFinal + recargo;
-        precioFinal = precioFinal / cuotas;
-    }
-    return precioFinal;
-}
+    alert(msjPantalla);
+};
 
-function detalleProducto(productoRequerido) {
-    let msjOpcionesPago = "";
+/*************************************************************************************/
+//  Creo los Objetos de mis productos
+const zapatilla1 = new Zapatilla("NIKE", "AIR FORCE", "40", "5", "ZNIAF", "Blanco", "Cordones");
+const zapatilla2 = new Zapatilla("NIKE", "AIR MAX", "42", "7", "ZNIAM", "Negro-Blanco", "Cordones");
+const zapatilla3 = new Zapatilla("ADIDAS", "FORUM", "41", "10", "ZADFO", "Blanco-Azul", "Abrojo");
+const buzo1 = new Indumentaria("DC", "skate old", "XL", "6", "IDCSO", "Gris", "Buzo Canguro");
+const remera1 = new Indumentaria("Element", "Star", "L", "10", "IELST", "Blanco", "Remera Manga corta");
+const pantalon1 = new Indumentaria("Levis", "Basic", "M", "7", "ILEBA", "Negro", "Jean basico");
 
-    /*Solicito que ingrese cantidad de producto */
-    cantidadProd = cantidadProducto(msjEncabezadoCant);
+//Creo el listado de productos
+const zapatillas = [zapatilla1, zapatilla2, zapatilla3];
+const indumentarias = [buzo1, remera1, pantalon1];
+let carrito = [];
+/*************************************************************************************/
+const menuPrincipal = ["Zapatillas", "Indumentaria"];
+const menuSecundario = ["Agregar un nuevo producto al carrito", "Ver mi carrito"];
+let msjPrincipal = "Seleccione el tipo de producto que desea comprar:\n";
+let msjSecundario = "Seleccione una opcion:\n";
+let seleccion = 0;
+let selZapatilla = 0;
+let selIndumentaria = 0;
+let msjPantalla = "";
+let codigo = "";
 
-    msjOpcionesPago = "Producto seleccionado: " + productos[productoRequerido - 1] + "\n";
-    msjOpcionesPago = msjOpcionesPago + "Cantidad: " + cantidadProd + "\n";
-    msjOpcionesPago = msjOpcionesPago + "Valor por unidad: " + "$" + precio[productoRequerido - 1] + "\n";
-    msjOpcionesPago = msjOpcionesPago + "Total: " + "$" + precio[productoRequerido - 1] * cantidadProd + "\n\n";
-    msjOpcionesPago = msjOpcionesPago + msjEncabezadoPago;
-    FormaDePagoSeleccionado = validarOpcion(msjOpcionesPago, formaDePago);
-}
+// Comienzo del programa
+alert("¡Bienvenido a mi tienda virtual!");
 
-/*********************************************************************************************/
+while (seleccion != 3) {
 
-/*Solicito al usuario que seleccione producto*/
-prodSeleccionado = validarOpcion(msjEncabezadoProd, productos);
+    /*Solicito al usuario que seleccione categoria de producto o salir*/
+    seleccion = validarOpcion(msjPrincipal, menuPrincipal);
 
-switch (prodSeleccionado) {
-    //NIKE AIR FORCE
-    case 1:
-        isIngresoValido = true;
-        detalleProducto(prodSeleccionado);
-        break;
-
-    //ADIDAS FORUM   
-    case 2:
-        isIngresoValido = true;
-        detalleProducto(prodSeleccionado);
-        break;
-
-    //FILA RENNO
-    case 3:
-        isIngresoValido = true;
-        detalleProducto(prodSeleccionado);
-        break;
-
-    //NEW BALANCE 574
-    case 4:
-        isIngresoValido = true;
-        detalleProducto(prodSeleccionado);
-        break;
-
-    //ADIDAS SUPERSTAR
-    case 5:
-        isIngresoValido = true;
-        detalleProducto(prodSeleccionado);
-        break;
-
-    //SALIR
-    case 6:
-        alert("Hasta pronto!");
-        break;
-
-    default:
-        alert("La opcion ingresada no se encuentra disponible.");
-        break;
-}
-
-if (isIngresoValido) {
-    switch (FormaDePagoSeleccionado) {
-        //Efectivo
+    switch (seleccion) {
+        // Zapatillas
         case 1:
-            descuento = 10;
-            cuotas = 0;
-            precioFinal = calcularPrecioFinal(precio[prodSeleccionado - 1], cantidadProd, descuento, cuotas)
-            msjDetallePago = msjDetallePago + "Producto: " + productos[prodSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Cantidad: " + cantidadProd + "\n";
-            msjDetallePago = msjDetallePago + "Forma de pago: " + formaDePago[FormaDePagoSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Total a pagar: $" + precioFinal;
-            alert(msjDetallePago);
+            // Creo el mensaje por pantalla, muestro la lista de los productos y pido que el usuario elija producto
+            msjPantalla = "Listado de Zapatillas:\n\n";
+            msjPantalla = msjPantalla + listarProductos(zapatillas);
+            msjPantalla = msjPantalla + "\n" + "Ingrese el codigo del producto que desea agregar a su carrito: ";
+            codigo = prompt(msjPantalla);
+
+            // cargo el producto seleccionado al carrito
+            cargarProducto(codigo, zapatillas);
+
+            //Solicito al usuario si desea seguir comprando o ver su carrito
+            selZapatilla = validarOpcion(msjSecundario, menuSecundario);
+
+            // opcion 1: sigue comprando
+            if (selZapatilla == 1) {
+                break;
+            }
+            //opcion2: muestro carrito
+            else if (selZapatilla == 2) {
+
+                if (carrito.length == 0) {
+                    alert("Su carrito esta vacio!");
+                    break;
+                }
+
+                msjPantalla = "Listado de productos en su carrito:\n";
+                msjPantalla = msjPantalla + "Cantidad de productos: " + carrito.length + "\n\n";
+                msjPantalla = msjPantalla + listarProductos(carrito);
+                alert(msjPantalla);
+            }
+            else if (selZapatilla == 3) {
+                seleccion = 3;
+                alert("¡Hasta pronto!");
+            }
+            else {
+                alert("La opcion ingresada no se encuentra disponible.");
+            }
+
             break;
 
-        //Debito
+        // Indumentaria
         case 2:
-            descuento = 0;
-            cuotas = 0;
-            precioFinal = calcularPrecioFinal(precio[prodSeleccionado - 1], cantidadProd, descuento, cuotas)
-            msjDetallePago = msjDetallePago + "Producto: " + productos[prodSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Cantidad: " + cantidadProd + "\n";
-            msjDetallePago = msjDetallePago + "Forma de pago: " + formaDePago[FormaDePagoSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Total a pagar: $" + precioFinal;
-            alert(msjDetallePago);
+            // Creo el mensaje por pantalla, muestro la lista de los productos y pido que el usuario elija producto
+            msjPantalla = "Listado de Indumentaria:\n\n";
+            msjPantalla = msjPantalla + listarProductos(indumentarias);
+            msjPantalla = msjPantalla + "\n" + "Ingrese el codigo del producto que desea agregar a su carrito: ";
+            codigo = prompt(msjPantalla);
+
+            // cargo el producto seleccionado al carrito
+            cargarProducto(codigo, indumentarias);
+
+            //Solicito al usuario si desea seguir comprando o ver su carrito
+            selIndumentaria = validarOpcion(msjSecundario, menuSecundario);
+
+            // opcion 1: sigue comprando
+            if (selIndumentaria == 1) {
+                break;
+            }
+            //opcion2: muestro carrito
+            else if (selIndumentaria == 2) {
+
+                if (carrito.length == 0) {
+                    alert("Su carrito esta vacio!");
+                    break;
+                }
+
+                msjPantalla = "Listado de productos en su carrito:\n";
+                msjPantalla = msjPantalla + "Cantidad de productos: " + carrito.length + "\n\n";
+                msjPantalla = msjPantalla + listarProductos(carrito);
+                alert(msjPantalla);
+            }
+            else if (selIndumentaria == 3) {
+                seleccion = 3;
+                alert("¡Hasta pronto!");
+            }
+            else {
+                alert("La opcion ingresada no se encuentra disponible.");
+            }
+
             break;
 
-        //3 cuotas sin interes
         case 3:
-            descuento = 0;
-            cuotas = 3;
-            precioFinal = calcularPrecioFinal(precio[prodSeleccionado - 1], cantidadProd, descuento, cuotas)
-            msjDetallePago = msjDetallePago + "Producto: " + productos[prodSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Cantidad: " + cantidadProd + "\n";
-            msjDetallePago = msjDetallePago + "Forma de pago: " + formaDePago[FormaDePagoSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Total a pagar: " + "3 cuotas de $" + precioFinal.toFixed(2);
-            alert(msjDetallePago);
-            break;
-
-        //6 cuotas (recargo 10%)
-        case 4:
-            descuento = 0;
-            cuotas = 6;
-            precioFinal = calcularPrecioFinal(precio[prodSeleccionado - 1], cantidadProd, descuento, cuotas)
-            msjDetallePago = msjDetallePago + "Producto: " + productos[prodSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Cantidad: " + cantidadProd + "\n";
-            msjDetallePago = msjDetallePago + "Forma de pago: " + formaDePago[FormaDePagoSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Total a pagar: " + "6 cuotas de $" + precioFinal.toFixed(2);
-            alert(msjDetallePago);
-            break;
-
-        //12 cuotas (recargo 20%)
-        case 5:
-            descuento = 0;
-            cuotas = 12;
-            precioFinal = calcularPrecioFinal(precio[prodSeleccionado - 1], cantidadProd, descuento, cuotas)
-            msjDetallePago = msjDetallePago + "Producto: " + productos[prodSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Cantidad: " + cantidadProd + "\n";
-            msjDetallePago = msjDetallePago + "Forma de pago: " + formaDePago[FormaDePagoSeleccionado - 1] + "\n";
-            msjDetallePago = msjDetallePago + "Total a pagar: " + "12 cuotas de $" + precioFinal.toFixed(2);
-            alert(msjDetallePago);
-            break;
-
-        //SALIR
-        case 6:
-            alert("Hasta pronto!");
+            alert("¡Hasta pronto!");
             break;
 
         default:
             alert("La opcion ingresada no se encuentra disponible.");
             break;
     }
+
 }
